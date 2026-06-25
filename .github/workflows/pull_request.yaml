@@ -1,0 +1,42 @@
+name: Pull Request Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Build and test C++ libraries.
+  test_library:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Install LAPACK and LAPACKE
+        run: sudo apt-get install -y liblapack-dev libblas-dev
+        shell: bash
+      - name: Build and Test
+        run: |
+          toolchain=${PWD}/.github/workflow_toolchains/ubuntu-24.04.cmake
+          cmake -Bbuild -H. -GNinja -DCMAKE_TOOLCHAIN_FILE="${toolchain}"
+          cmake --build build --parallel
+          cd build
+          ctest -C Debug -T test -VV --no-tests=error
+        shell: bash
+
+  # Run pre-commit hooks
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v5
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Install and Run pre-commit
+        run: |
+          pip install -r requirements.txt
+          pre-commit run --all-files
+        shell: bash
