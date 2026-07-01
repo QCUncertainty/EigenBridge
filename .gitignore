@@ -22,3 +22,22 @@ toolchain.cmake
 
 # Users often install under the root directory
 install/
+
+# These are extensions commonly used to denote temporary files
+*.tmp
+*.autosave
+*.bak
+*~
+*.py[cod]
+*.so
+*.cfg
+!.isort.cfg
+!setup.cfg
+*.orig
+*.log
+*.pot
+__pycache__/*
+.cache/*
+.*.swp
+*/.ipynb_checkpoints/*
+.DS_Store

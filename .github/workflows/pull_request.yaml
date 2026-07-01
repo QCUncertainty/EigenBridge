@@ -7,7 +7,7 @@ on:
 
 jobs:
   # Build and test C++ libraries.
-  test_library:
+  test_cpp:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
@@ -23,6 +23,27 @@ jobs:
           cmake --build build --parallel
           cd build
           ctest -C Debug -T test -VV --no-tests=error
+        shell: bash
+
+  # Build and test Python bindings.
+  test_python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Install LAPACK and LAPACKE
+        run: sudo apt-get install -y liblapack-dev libblas-dev
+        shell: bash
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Build and Test
+        run: |
+          pip install .
+          cd tests/unit_tests
+          python -m unittest
         shell: bash
 
   # Run pre-commit hooks

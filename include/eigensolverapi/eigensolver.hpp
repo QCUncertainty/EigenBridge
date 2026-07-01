@@ -10,10 +10,10 @@ public:
 
     System(int n) :
       n(n),
-      eigenvalues(n),
-      eigenvectors(n * n),
-      uq_values(n),
-      uq_vectors(n * n) {};
+      eigenvalues(n, 0.0),
+      eigenvectors(n * n, 0.0),
+      uq_values(n, 0.0),
+      uq_vectors(n * n, 0.0) {};
 
     // Pointer to the eigenvalues
     vector_t eigenvalues;
