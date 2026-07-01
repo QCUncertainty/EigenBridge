@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install LAPACK and LAPACKE
-        run: sudo apt-get install -y liblapack-dev libblas-dev
+        run: sudo apt-get install -y liblapacke-dev
         shell: bash
       - name: Build and Test
         run: |
@@ -33,7 +33,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install LAPACK and LAPACKE
-        run: sudo apt-get install -y liblapack-dev libblas-dev
+        run: sudo apt-get install -y liblapacke-dev
         shell: bash
       - name: Setup Python
         uses: actions/setup-python@v6
