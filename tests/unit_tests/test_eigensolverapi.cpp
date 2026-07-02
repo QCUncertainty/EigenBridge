@@ -21,11 +21,11 @@ TEST_CASE("Eigensolverapi") {
       -0.2409156892326610, 0.8579040480716453,  -0.4538284642723896};
 
     auto rv = eigensolverapi::run_eigensolver(matrix);
-    for(auto i = 0; i < rv.eigenvalues.size(); ++i) {
+    for(std::size_t i = 0; i < rv.eigenvalues.size(); ++i) {
         REQUIRE(rv.eigenvalues[i] ==
                 Catch::Approx(corr_values[i]).margin(1.0e-16));
     }
-    for(auto i = 0; i < rv.eigenvectors.size(); ++i) {
+    for(std::size_t i = 0; i < rv.eigenvectors.size(); ++i) {
         REQUIRE(rv.eigenvectors[i] ==
                 Catch::Approx(corr_vectors[i]).margin(1.0e-16));
     }

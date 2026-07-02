@@ -1,6 +1,6 @@
+#include "../../include/eigensolverapi/eigensolver.hpp"
 #include <algorithm>
 #include <cmath>
-#include <eigensolverapi/eigensolver.hpp>
 #include <lapacke.h>
 #include <string>
 
@@ -13,7 +13,7 @@ System run_eigensolver(std::vector<double> matrix_in) {
 
     // LAPACK writes over the input values with the eigenvectors, so we copy the
     // input into the eigenvectors to start off.
-    for(int i = 0; i < n * n; ++i) rv.eigenvectors[i] = matrix_in[i];
+    rv.eigenvectors = matrix_in;
 
     int info = LAPACKE_dsyev(LAPACK_ROW_MAJOR, 'V', 'U', n,
                              rv.eigenvectors.data(), n, rv.eigenvalues.data());
