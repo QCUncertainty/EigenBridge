@@ -15,16 +15,16 @@ public:
       uq_vectors(n * n, 0.0),
       n(n) {};
 
-    // Pointer to the eigenvalues
+    // Vector of the eigenvalues
     vector_t eigenvalues;
 
-    // Pointer to the eigenvectors
+    // Vector of the eigenvectors
     vector_t eigenvectors;
 
-    // Pointer to the uncertainties of the eigenvalues
+    // Vector of the uncertainties of the eigenvalues
     vector_t uq_values;
 
-    // Pointer to the uncertainties of the eigenvectors
+    // Vector of the uncertainties of the eigenvectors
     vector_t uq_vectors;
 
     // The number of return values
