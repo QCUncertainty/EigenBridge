@@ -42,5 +42,6 @@ public:
  *  @throw none No throw guarantee
  */
 System run_eigensolver(std::vector<double> matrix_in);
+System run_quantum_eigensolver(std::vector<double> matrix_in);
 
 } // namespace eigensolverapi
