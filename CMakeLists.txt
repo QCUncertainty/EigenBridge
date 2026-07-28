@@ -46,15 +46,31 @@ if(${SKBUILD})
 else()
     # C++
     message(STATUS "Building CPP Library ${PROJECT_NAME}...")
-
+    set(PYBIND11_FINDPYTHON ON)
+    find_package(pybind11 CONFIG REQUIRED)
     # Create the library target
     add_library(${PROJECT_NAME} ${SOURCE_FILES})
-    target_link_libraries(${PROJECT_NAME} LAPACK::LAPACK lapacke)
+    target_link_libraries(
+    ${PROJECT_NAME}
+    PUBLIC
+        LAPACK::LAPACK
+        ${LAPACKE_LIBRARIES}
+        pybind11::embed
+    )
+    target_link_directories(
+        ${PROJECT_NAME}
+        PUBLIC
+            ${LAPACKE_LIBRARY_DIRS}
+    )
     target_include_directories(
         ${PROJECT_NAME}
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+        PRIVATE
+            ${LAPACKE_INCLUDE_DIRS}
     )
+
 
     # Install the library
     include(cmake/install_target.cmake)
