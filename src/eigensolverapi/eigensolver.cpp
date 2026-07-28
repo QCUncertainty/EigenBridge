@@ -1,12 +1,11 @@
 #include "../../include/eigensolverapi/eigensolver.hpp"
 #include <algorithm>
 #include <cmath>
-#include <lapacke.h>
-#include <string>
-#include <pybind11/embed.h>
-#include <pybind11/stl.h> 
 #include <iostream>
-#include <cmath>
+#include <lapacke.h>
+#include <pybind11/embed.h>
+#include <pybind11/stl.h>
+#include <string>
 
 namespace py = pybind11;
 
@@ -37,28 +36,28 @@ System run_eigensolver(std::vector<double> matrix_in) {
 System run_quantum_eigensolver(std::vector<double> matrix_in) {
     int n = std::sqrt(matrix_in.size());
     System rv(n);
-    py::scoped_interpreter guard{}; 
+    py::scoped_interpreter guard{};
 
     try {
-        
         py::object sys = py::module_::import("sys");
         sys.attr("path").attr("append")("../src/eigensolverapi");
 
-        // Import the Python script 
+        // Import the Python script
         py::object my_module = py::module_::import("quantum_solver");
 
         // Call solve_vqe
-        py::object result = my_module.attr("solve_vqe")(matrix_in, n);
+        py::object result          = my_module.attr("solve_vqe")(matrix_in, n);
         double ground_state_energy = result.cast<double>();
 
         // Place the quantum result
-        rv.eigenvalues[0] = ground_state_energy; 
+        rv.eigenvalues[0] = ground_state_energy;
 
-        // Fill uncertainties with the default 1e-16 as required by the previous system
+        // Fill uncertainties with the default 1e-16 as required by the previous
+        // system
         std::fill(rv.uq_values.begin(), rv.uq_values.end(), 1e-16);
         std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 1e-16);
 
-    } catch (py::error_already_set& e) {
+    } catch(py::error_already_set& e) {
         std::cerr << "Python execution failed: " << e.what() << std::endl;
         throw std::runtime_error("Quantum solver encountered an error.");
     }

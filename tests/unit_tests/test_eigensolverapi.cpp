@@ -33,11 +33,9 @@ TEST_CASE("Eigensolverapi classical") {
     for(const auto& u : rv.uq_vectors) REQUIRE(u == 1e-16);
 }
 
-
-
 TEST_CASE("Eigensolverapi quantum") {
     vector_t matrix = {3, 5, 2, 5, 1, 3, 2, 3, 2};
-    
+
     // VQE only computes the ground state energy
     // The classical ground state for this matrix is ~ -3.361
     double expected_ground_state = -3.3610452994996525;
@@ -47,5 +45,6 @@ TEST_CASE("Eigensolverapi quantum") {
 
     // Check ONLY the ground state eigenvalue (index 0)
     // Note: Margin widened to 0.01 to account for VQE variance
-    REQUIRE(rv.eigenvalues[0] == Catch::Approx(expected_ground_state).margin(1.0e-2));
+    REQUIRE(rv.eigenvalues[0] ==
+            Catch::Approx(expected_ground_state).margin(1.0e-2));
 }

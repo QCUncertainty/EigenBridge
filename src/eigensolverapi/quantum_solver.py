@@ -7,7 +7,7 @@ from qiskit.primitives import StatevectorEstimator
 
 def solve_vqe(flat_matrix, n):
     """
-    Takes a flat matrix of size n*n, 
+    Takes a flat matrix of size n*n,
     and returns the lowest eigenvalue using VQE.
     """
     # Reshape into an n x n NumPy array
@@ -18,28 +18,28 @@ def solve_vqe(flat_matrix, n):
     if next_pow2 != n:
         padded_mat = np.zeros((next_pow2, next_pow2))
         padded_mat[:n, :n] = mat
-        
+
         # Add a massive penalty for the padded diagonal elements
         for i in range(n, next_pow2):
-            padded_mat[i, i] = 1000.0 
-        
+            padded_mat[i, i] = 1000.0
+
         mat = padded_mat
-        
+
     num_qubits = int(np.log2(next_pow2))
 
-    
+
     observable = SparsePauliOp.from_operator(mat)
 
-    # Setup the VQE environment 
+    # Setup the VQE environment
     ansatz = EfficientSU2(num_qubits, reps=1, entanglement="linear")
     optimizer = SLSQP(maxiter=1000, ftol=1e-9)
     estimator = StatevectorEstimator()
-    
+
     # Execute the VQE solver
     vqe = VQE(estimator, ansatz, optimizer)
     vqe.initial_point = np.zeros(ansatz.num_parameters)
-    
-    
+
+
     result = vqe.compute_minimum_eigenvalue(observable)
 
     return result.eigenvalue.real

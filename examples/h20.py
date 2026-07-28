@@ -12,7 +12,7 @@ from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 from qiskit.primitives import StatevectorEstimator
-from qiskit_aer.primitives import EstimatorV2 as AerEstimatorV2   
+from qiskit_aer.primitives import EstimatorV2 as AerEstimatorV2
 from qiskit_aer.noise import NoiseModel
 from qiskit_aer import AerSimulator
 from qiskit_ibm_runtime.fake_provider import FakeManilaV2
@@ -49,7 +49,7 @@ ansatz = UCCSD(
     tapered_mapper,
     initial_state=initial_state
 )
- 
+
 fake_backend = FakeManilaV2()
 
 # VQE
