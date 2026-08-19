@@ -35,15 +35,15 @@ TEST_CASE("Eigensolverapi classical") {
 }
 
 TEST_CASE("Eigensolverapi vqd") {
-    vector_t matrix      = {3, 5, 2, 5, 1, 3, 2, 3, 2};
-    vector_t corr_values = {-3.3610452994996525, 0.5038738768058354,
-                            8.8571714226938152};
+    vector_t matrix       = {3, 5, 2, 5, 1, 3, 2, 3, 2};
+    vector_t corr_values  = {-3.3610452994996525, 0.5038738768058354,
+                             8.8571714226938152};
     vector_t corr_vectors = {
       -0.5518254419285664, -0.5057445690691208, -0.6631071651682192,
       0.7984036023978691,  -0.0906811731252565, -0.5952550818924042,
       -0.2409156892326610, 0.8579040480716453,  -0.4538284642723896};
-    const int n            = 3;
-    const double vec_tol   = 5.0e-2;
+    const int n          = 3;
+    const double vec_tol = 5.0e-2;
 
     auto matches_column_up_to_sign = [](const vector_t& got,
                                         const vector_t& expected, int col,
@@ -88,9 +88,9 @@ TEST_CASE("Eigensolverapi vqd") {
 }
 
 TEST_CASE("Eigensolverapi qaoa") {
-    vector_t matrix      = {3, 5, 2, 5, 1, 3, 2, 3, 2};
-    vector_t corr_values = {-3.3610452994996525, 0.5038738768058354,
-                            8.8571714226938152};
+    vector_t matrix       = {3, 5, 2, 5, 1, 3, 2, 3, 2};
+    vector_t corr_values  = {-3.3610452994996525, 0.5038738768058354,
+                             8.8571714226938152};
     vector_t corr_vectors = {
       -0.5518254419285664, -0.5057445690691208, -0.6631071651682192,
       0.7984036023978691,  -0.0906811731252565, -0.5952550818924042,
@@ -114,12 +114,11 @@ TEST_CASE("Eigensolverapi qaoa") {
     };
 
     auto rv = eigensolverapi::run_qaoa_eigensolver(matrix);
-    REQUIRE(rv.eigenvalues[0] ==
-            Catch::Approx(corr_values[0]).margin(val_tol));
+    REQUIRE(rv.eigenvalues[0] == Catch::Approx(corr_values[0]).margin(val_tol));
     REQUIRE(rv.eigenvalues[1] == 0.0);
     REQUIRE(rv.eigenvalues[2] == 0.0);
-    REQUIRE(matches_column_up_to_sign(rv.eigenvectors, corr_vectors, 0, n,
-                                      vec_tol));
+    REQUIRE(
+      matches_column_up_to_sign(rv.eigenvectors, corr_vectors, 0, n, vec_tol));
     for(int col = 1; col < n; ++col) {
         for(int row = 0; row < n; ++row) {
             REQUIRE(rv.eigenvectors[row * n + col] == 0.0);

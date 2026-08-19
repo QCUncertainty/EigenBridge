@@ -36,9 +36,7 @@ System run_eigensolver(std::vector<double> matrix_in) {
 
 System run_vqd_eigensolver(std::vector<double> matrix_in, int k) {
     int n = std::sqrt(matrix_in.size());
-    if(k == -1) {
-        k = n;
-    }
+    if(k == -1) { k = n; }
     if(k < 1 || k > n) {
         throw std::runtime_error("eigensolverapi::run_vqd_eigensolver: k "
                                  "must satisfy 1 <= k <= n.");
@@ -46,9 +44,7 @@ System run_vqd_eigensolver(std::vector<double> matrix_in, int k) {
     System rv(n);
 
     // pybind11 allows only one interpreter per process
-    if(!Py_IsInitialized()) {
-        py::initialize_interpreter();
-    }
+    if(!Py_IsInitialized()) { py::initialize_interpreter(); }
 
     try {
         py::object sys = py::module_::import("sys");
@@ -59,8 +55,8 @@ System run_vqd_eigensolver(std::vector<double> matrix_in, int k) {
 
         // Call solve_vqd; remaining eigenvalue/vector slots stay 0.0
         py::object result = my_module.attr("solve_vqd")(matrix_in, n, k);
-        auto unpacked     = result.cast<
-          std::pair<std::vector<double>, std::vector<double>>>();
+        auto unpacked =
+          result.cast<std::pair<std::vector<double>, std::vector<double>>>();
         auto& eigenvalues  = unpacked.first;
         auto& eigenvectors = unpacked.second;
 
@@ -74,15 +70,15 @@ System run_vqd_eigensolver(std::vector<double> matrix_in, int k) {
               "eigensolverapi::run_vqd_eigensolver: VQD returned fewer "
               "eigenvector components than n*n.");
         }
-        for(int i = 0; i < k; ++i) {
-            rv.eigenvalues[i] = eigenvalues[i];
-        }
-        
-        // Unused columns are already 0.0 from Python. This matches LAPACK dsyev.
+        for(int i = 0; i < k; ++i) { rv.eigenvalues[i] = eigenvalues[i]; }
+
+        // Unused columns are already 0.0 from Python. This matches LAPACK
+        // dsyev.
         std::copy(eigenvectors.begin(), eigenvectors.begin() + n * n,
                   rv.eigenvectors.begin());
 
-        // Fill uncertainties with the default 1e-16 as required by the previous system.
+        // Fill uncertainties with the default 1e-16 as required by the previous
+        // system.
         std::fill(rv.uq_values.begin(), rv.uq_values.end(), 1e-16);
         std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 1e-16);
 
@@ -98,19 +94,17 @@ System run_qaoa_eigensolver(std::vector<double> matrix_in, bool use_noise) {
     int n = std::sqrt(matrix_in.size());
     System rv(n);
 
-    if(!Py_IsInitialized()) {
-        py::initialize_interpreter();
-    }
+    if(!Py_IsInitialized()) { py::initialize_interpreter(); }
 
     try {
         py::object sys = py::module_::import("sys");
         sys.attr("path").attr("append")("../src/eigensolverapi");
 
         py::object my_module = py::module_::import("quantum_solver");
-        py::object result    = my_module.attr("solve_qaoa")(matrix_in, n,
-                                                            use_noise);
-        auto unpacked = result.cast<
-          std::pair<std::vector<double>, std::vector<double>>>();
+        py::object result =
+          my_module.attr("solve_qaoa")(matrix_in, n, use_noise);
+        auto unpacked =
+          result.cast<std::pair<std::vector<double>, std::vector<double>>>();
         auto& eigenvalues  = unpacked.first;
         auto& eigenvectors = unpacked.second;
 

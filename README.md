@@ -14,10 +14,10 @@ make
 PYTHONPATH="$VIRTUAL_ENV/lib/python3.*/site-packages" ./unit_test_eigensolverapi
 ```
 
-VQD -> `run_vqd_eigensolver(matrix, k)` -> `solve_vqd` -> lowest `k` eigenvalues (`k` defaults to all) 
-QAOA -> `run_qaoa_eigensolver(matrix)` -> `solve_qaoa` -> ground state only 
+VQD -> `run_vqd_eigensolver(matrix, k)` -> `solve_vqd` -> lowest `k` eigenvalues (`k` defaults to all)
+QAOA -> `run_qaoa_eigensolver(matrix)` -> `solve_qaoa` -> ground state only
 
-QAOA is noiseless by default. For a noisy Aer demo (`use_noise=true`):
+QAOA is noiseless by default. For a noise-based model (`use_noise=true`):
 
 ```bash
 pip install qiskit-aer qiskit-ibm-runtime
