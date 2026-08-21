@@ -7,6 +7,7 @@
 #include <pybind11/stl.h>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 
 namespace py = pybind11;
 
@@ -28,9 +29,9 @@ System run_eigensolver(std::vector<double> matrix_in) {
                           "failed to compute eigenvalues.";
         throw std::runtime_error(msg);
     }
-    // For LAPACK, we currently just set the uncertainties to 1e-16.
-    std::fill(rv.uq_values.begin(), rv.uq_values.end(), 1e-16);
-    std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 1e-16);
+    // For noiseless calculations, we set the uncertainties to 0.
+    std::fill(rv.uq_values.begin(), rv.uq_values.end(), 0.0);
+    std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 0.0);
     return rv;
 }
 
@@ -77,10 +78,9 @@ System run_vqd_eigensolver(std::vector<double> matrix_in, int k) {
         std::copy(eigenvectors.begin(), eigenvectors.begin() + n * n,
                   rv.eigenvectors.begin());
 
-        // Fill uncertainties with the default 1e-16 as required by the previous
-        // system.
-        std::fill(rv.uq_values.begin(), rv.uq_values.end(), 1e-16);
-        std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 1e-16);
+        // VQD is noiseless in the current version.
+        std::fill(rv.uq_values.begin(), rv.uq_values.end(), 0.0);
+        std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 0.0);
 
     } catch(py::error_already_set& e) {
         std::cerr << "Python execution failed: " << e.what() << std::endl;
@@ -103,10 +103,14 @@ System run_qaoa_eigensolver(std::vector<double> matrix_in, bool use_noise) {
         py::object my_module = py::module_::import("quantum_solver");
         py::object result =
           my_module.attr("solve_qaoa")(matrix_in, n, use_noise);
-        auto unpacked =
-          result.cast<std::pair<std::vector<double>, std::vector<double>>>();
-        auto& eigenvalues  = unpacked.first;
-        auto& eigenvectors = unpacked.second;
+        using Quad =
+          std::tuple<std::vector<double>, std::vector<double>,
+                     std::vector<double>, std::vector<double>>;
+        auto unpacked      = result.cast<Quad>();
+        auto& eigenvalues  = std::get<0>(unpacked);
+        auto& eigenvectors = std::get<1>(unpacked);
+        auto& uq_values    = std::get<2>(unpacked);
+        auto& uq_vectors   = std::get<3>(unpacked);
 
         if(eigenvalues.empty()) {
             throw std::runtime_error(
@@ -122,8 +126,16 @@ System run_qaoa_eigensolver(std::vector<double> matrix_in, bool use_noise) {
         std::copy(eigenvectors.begin(), eigenvectors.begin() + n * n,
                   rv.eigenvectors.begin());
 
-        std::fill(rv.uq_values.begin(), rv.uq_values.end(), 1e-16);
-        std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 1e-16);
+        // Noiseless: uq_* = 0. Noisy: copy simulator uncertainties.
+        std::fill(rv.uq_values.begin(), rv.uq_values.end(), 0.0);
+        std::fill(rv.uq_vectors.begin(), rv.uq_vectors.end(), 0.0);
+        if(use_noise) {
+            if(!uq_values.empty()) { rv.uq_values[0] = uq_values[0]; }
+            if(static_cast<int>(uq_vectors.size()) >= n * n) {
+                std::copy(uq_vectors.begin(), uq_vectors.begin() + n * n,
+                          rv.uq_vectors.begin());
+            }
+        }
 
     } catch(py::error_already_set& e) {
         std::cerr << "Python execution failed: " << e.what() << std::endl;

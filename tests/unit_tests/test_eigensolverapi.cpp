@@ -3,6 +3,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
 #include <eigensolverapi/eigensolver.hpp>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include <iomanip>
@@ -30,8 +32,8 @@ TEST_CASE("Eigensolverapi classical") {
         REQUIRE(rv.eigenvectors[i] ==
                 Catch::Approx(corr_vectors[i]).margin(1.0e-16));
     }
-    for(const auto& u : rv.uq_values) REQUIRE(u == 1e-16);
-    for(const auto& u : rv.uq_vectors) REQUIRE(u == 1e-16);
+    for(const auto& u : rv.uq_values) REQUIRE(u == 0.0);
+    for(const auto& u : rv.uq_vectors) REQUIRE(u == 0.0);
 }
 
 TEST_CASE("Eigensolverapi vqd") {
@@ -69,6 +71,8 @@ TEST_CASE("Eigensolverapi vqd") {
             REQUIRE(matches_column_up_to_sign(rv.eigenvectors, corr_vectors, i,
                                               n, vec_tol));
         }
+        for(const auto& u : rv.uq_values) REQUIRE(u == 0.0);
+        for(const auto& u : rv.uq_vectors) REQUIRE(u == 0.0);
     }
 
     SECTION("k equals 1 returns only the ground state") {
@@ -113,17 +117,45 @@ TEST_CASE("Eigensolverapi qaoa") {
         return same || flipped;
     };
 
-    auto rv = eigensolverapi::run_qaoa_eigensolver(matrix);
-    REQUIRE(rv.eigenvalues[0] == Catch::Approx(corr_values[0]).margin(val_tol));
-    REQUIRE(rv.eigenvalues[1] == 0.0);
-    REQUIRE(rv.eigenvalues[2] == 0.0);
-    REQUIRE(
-      matches_column_up_to_sign(rv.eigenvectors, corr_vectors, 0, n, vec_tol));
-    for(int col = 1; col < n; ++col) {
-        for(int row = 0; row < n; ++row) {
-            REQUIRE(rv.eigenvectors[row * n + col] == 0.0);
+    SECTION("noiseless") {
+        auto rv = eigensolverapi::run_qaoa_eigensolver(matrix);
+        REQUIRE(rv.eigenvalues[0] ==
+                Catch::Approx(corr_values[0]).margin(val_tol));
+        REQUIRE(rv.eigenvalues[1] == 0.0);
+        REQUIRE(rv.eigenvalues[2] == 0.0);
+        REQUIRE(matches_column_up_to_sign(rv.eigenvectors, corr_vectors, 0, n,
+                                          vec_tol));
+        for(int col = 1; col < n; ++col) {
+            for(int row = 0; row < n; ++row) {
+                REQUIRE(rv.eigenvectors[row * n + col] == 0.0);
+            }
         }
+        for(const auto& u : rv.uq_values) REQUIRE(u == 0.0);
+        for(const auto& u : rv.uq_vectors) REQUIRE(u == 0.0);
     }
-    for(const auto& u : rv.uq_values) REQUIRE(u == 1e-16);
-    for(const auto& u : rv.uq_vectors) REQUIRE(u == 1e-16);
+
+    SECTION("noisy uncertainty consistent with actual error") {
+        eigensolverapi::System rv(n);
+        try {
+            rv = eigensolverapi::run_qaoa_eigensolver(matrix, true);
+        } catch(const std::runtime_error& e) {
+            FAIL("Noisy QAOA failed (need qiskit-aer + qiskit-ibm-runtime?): "
+         << e.what());
+        }
+
+        const double exact_ground = corr_values[0];
+        const double actual_error =
+          std::abs(rv.eigenvalues[0] - exact_ground);
+        REQUIRE(rv.uq_values[0] > 0.0);
+        REQUIRE(actual_error > 0.0);
+        // Predicted uncertainty should match |λ_noisy − λ_exact| within ~10x.
+        const double predicted = rv.uq_values[0];
+        const double ratio =
+          std::max(actual_error, predicted) / std::min(actual_error, predicted);
+        REQUIRE(ratio < 10.0);
+        for(std::size_t i = 1; i < rv.uq_values.size(); ++i) {
+            REQUIRE(rv.uq_values[i] == 0.0);
+        }
+        for(const auto& u : rv.uq_vectors) REQUIRE(u == 0.0);
+    }
 }

@@ -99,10 +99,34 @@ def _make_estimator(use_noise):
     pass_manager = generate_preset_pass_manager(
         optimization_level=1, backend=aer_simulator
     )
+    
     estimator = AerEstimatorV2(
         options={"backend_options": {"noise_model": noise_model}}
     )
     return estimator, pass_manager
+
+
+def _expect_energy(estimator, circuit, observable, parameters):
+    op = observable
+    if getattr(circuit, "layout", None) is not None:
+        op = observable.apply_layout(circuit.layout)
+    evs = np.asarray(
+        estimator.run([(circuit, op, parameters)]).result()[0].data.evs,
+        dtype=float,
+    ).reshape(-1)
+    return float(np.real(evs[0]))
+
+
+def _energy_diff_uncertainty(circuit, parameters, observable, noisy_estimator):
+
+    exact_energy = _expect_energy(
+        StatevectorEstimator(), circuit, observable, parameters
+    )
+    noisy_energy = _expect_energy(
+        noisy_estimator, circuit, observable, parameters
+    )
+    # Predicted noise = |E_noisy - E_exact| on the final circuit
+    return abs(noisy_energy - exact_energy)
 
 
 def solve_vqd(flat_matrix, n, k=None):
@@ -151,8 +175,8 @@ def solve_vqd(flat_matrix, n, k=None):
 
 def solve_qaoa(flat_matrix, n, use_noise=False, reps=3):
     """
-    Takes a flat matrix of size n*n, and returns the ground eigenvalue
-    and matching eigenvector using QAOAAnsatz + VQE.
+    Takes a flat matrix of size n*n, and returns the ground eigenvalue,
+    and matching eigenvector using QAOA.
     """
     observable, _ = _matrix_to_observable(flat_matrix, n)
     ansatz = QAOAAnsatz(observable, reps=reps)
@@ -173,7 +197,18 @@ def solve_qaoa(flat_matrix, n, use_noise=False, reps=3):
     eigenvectors[:, 0] = _statevector_to_real_eigenvector(
         result.optimal_circuit, result.optimal_point, n
     )
-    return eigenvalues, eigenvectors.ravel().tolist()
+
+    uq_values = [0.0] * len(eigenvalues)
+    uq_vectors = [0.0] * (n * n)
+    if use_noise:
+        uq_values[0] = _energy_diff_uncertainty(
+            result.optimal_circuit,
+            result.optimal_point,
+            observable,
+            estimator
+        )
+
+    return eigenvalues, eigenvectors.ravel().tolist(), uq_values, uq_vectors
 
 
 # Quick Test
@@ -183,14 +218,16 @@ if __name__ == "__main__":
     values, vectors = solve_vqd(test_matrix, 3)
     print(f"VQD Eigenvalues: {values}")
     print(f"VQD Eigenvectors: {vectors}")
-    qaoa_values, qaoa_vectors = solve_qaoa(test_matrix, 3)
+    qaoa_values, qaoa_vectors, qaoa_uq_v, qaoa_uq_vec = solve_qaoa(test_matrix, 3)
     print(f"QAOA Eigenvalue: {qaoa_values}")
     print(f"QAOA Eigenvector: {qaoa_vectors}")
+    print(f"QAOA uq_values: {qaoa_uq_v}")
     try:
-        qaoa_noisy_values, qaoa_noisy_vectors = solve_qaoa(
+        qaoa_noisy_values, qaoa_noisy_vectors, noisy_uq_v, noisy_uq_vec = solve_qaoa(
             test_matrix, 3, use_noise=True
         )
         print(f"QAOA Eigenvalue (noise): {qaoa_noisy_values}")
         print(f"QAOA Eigenvector (noise): {qaoa_noisy_vectors}")
+        print(f"QAOA uq_values (noise): {noisy_uq_v}")
     except ImportError as exc:
         print(f"Skipping noisy QAOA demo: {exc}")
