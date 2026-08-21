@@ -22,7 +22,8 @@ jobs:
         shell: bash
       - name: Install Python deps for embed and VQE
         run: |
-          pip install pybind11 qiskit qiskit-algorithms numpy scipy
+          pip install pybind11 qiskit qiskit-algorithms numpy scipy \
+            qiskit-aer qiskit-ibm-runtime
         shell: bash
       - name: Build and Test
         run: |

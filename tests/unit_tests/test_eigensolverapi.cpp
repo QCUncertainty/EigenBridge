@@ -139,8 +139,14 @@ TEST_CASE("Eigensolverapi qaoa") {
         try {
             rv = eigensolverapi::run_qaoa_eigensolver(matrix, true);
         } catch(const std::runtime_error& e) {
-            FAIL("Noisy QAOA failed (need qiskit-aer + qiskit-ibm-runtime?): "
-                 << e.what());
+            const std::string msg = e.what();
+            // Skip when Aer/runtime is not installed.
+            if(msg.find("qiskit-aer") != std::string::npos ||
+               msg.find("qiskit-ibm-runtime") != std::string::npos ||
+               msg.find("Noisy QAOA requires") != std::string::npos) {
+                SKIP("Noisy QAOA optional deps missing: " << msg);
+            }
+            FAIL("Noisy QAOA failed: " << msg);
         }
 
         const double exact_ground = corr_values[0];

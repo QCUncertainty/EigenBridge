@@ -138,7 +138,8 @@ System run_qaoa_eigensolver(std::vector<double> matrix_in, bool use_noise) {
 
     } catch(py::error_already_set& e) {
         std::cerr << "Python execution failed: " << e.what() << std::endl;
-        throw std::runtime_error("QAOA solver encountered an error.");
+        throw std::runtime_error(
+          std::string("QAOA solver encountered an error: ") + e.what());
     }
 
     return rv;
