@@ -103,11 +103,10 @@ System run_qaoa_eigensolver(std::vector<double> matrix_in, bool use_noise) {
         py::object my_module = py::module_::import("quantum_solver");
         py::object result =
           my_module.attr("solve_qaoa")(matrix_in, n, use_noise);
-        using Quad =
-          std::tuple<std::vector<double>, std::vector<double>,
-                     std::vector<double>, std::vector<double>>;
-        auto unpacked      = result.cast<Quad>();
-        auto& eigenvalues  = std::get<0>(unpacked);
+        using Quad        = std::tuple<std::vector<double>, std::vector<double>,
+                                       std::vector<double>, std::vector<double>>;
+        auto unpacked     = result.cast<Quad>();
+        auto& eigenvalues = std::get<0>(unpacked);
         auto& eigenvectors = std::get<1>(unpacked);
         auto& uq_values    = std::get<2>(unpacked);
         auto& uq_vectors   = std::get<3>(unpacked);

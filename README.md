@@ -25,4 +25,4 @@ QAOA -> `run_qaoa_eigensolver(matrix, use_noise=false)` -> `solve_qaoa` -> groun
 - Noiseless solvers (LAPACK, VQD, noiseless QAOA): `uq_* = 0`
 - Noisy QAOA (`use_noise=true`): at the final circuit, `uq_values[0] = |E_noisy − E_exact|`; Unused slots and `uq_vectors` stay 0
 
-The noisy QAOA unit test checks that `uq_values[0] = |E_noisy − E_exact|` (at the final circuit) and `|λ_noisy − λ_LAPACK|` agree within a factor of 10 (ratio < 10). 
+The noisy QAOA unit test checks that `uq_values[0] = |E_noisy − E_exact|` (at the final circuit) and `|λ_noisy − λ_LAPACK|` agree within a factor of 10 (ratio < 10).

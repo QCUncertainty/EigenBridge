@@ -99,7 +99,7 @@ def _make_estimator(use_noise):
     pass_manager = generate_preset_pass_manager(
         optimization_level=1, backend=aer_simulator
     )
-    
+
     estimator = AerEstimatorV2(
         options={"backend_options": {"noise_model": noise_model}}
     )

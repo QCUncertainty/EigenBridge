@@ -140,12 +140,11 @@ TEST_CASE("Eigensolverapi qaoa") {
             rv = eigensolverapi::run_qaoa_eigensolver(matrix, true);
         } catch(const std::runtime_error& e) {
             FAIL("Noisy QAOA failed (need qiskit-aer + qiskit-ibm-runtime?): "
-         << e.what());
+                 << e.what());
         }
 
         const double exact_ground = corr_values[0];
-        const double actual_error =
-          std::abs(rv.eigenvalues[0] - exact_ground);
+        const double actual_error = std::abs(rv.eigenvalues[0] - exact_ground);
         REQUIRE(rv.uq_values[0] > 0.0);
         REQUIRE(actual_error > 0.0);
         // Predicted uncertainty should match |λ_noisy − λ_exact| within ~10x.
