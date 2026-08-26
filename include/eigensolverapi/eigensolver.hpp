@@ -42,5 +42,8 @@ public:
  *  @throw none No throw guarantee
  */
 System run_eigensolver(std::vector<double> matrix_in);
+System run_vqd_eigensolver(std::vector<double> matrix_in, int k = -1);
+System run_qaoa_eigensolver(std::vector<double> matrix_in,
+                            bool use_noise = false);
 
 } // namespace eigensolverapi

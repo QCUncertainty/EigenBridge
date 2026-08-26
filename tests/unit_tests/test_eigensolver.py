@@ -27,8 +27,6 @@ class TestEigensolver(unittest.TestCase):
             0.8579040480716453,
             -0.4538284642723896,
         ]
-        uncertainty = 1e-16
-
         # Check the results
         for i in range(len(result.eigenvalues)):
             self.assertAlmostEqual(
@@ -38,7 +36,8 @@ class TestEigensolver(unittest.TestCase):
             self.assertAlmostEqual(
                 result.eigenvectors[i], correct_eigenvectors[i], places=16
             )
+        # Noiseless classical path: no simulation uncertainty.
         for i in result.uq_values:
-            self.assertEqual(i, uncertainty)
+            self.assertEqual(i, 0.0)
         for i in result.uq_vectors:
-            self.assertEqual(i, uncertainty)
+            self.assertEqual(i, 0.0)
