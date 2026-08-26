@@ -1,4 +1,4 @@
-# EigensolverAPI (name in progress)
+# EigenBridge
 
 There are two quantum solvers. VQD can return several eigenvalues; QAOA returns only the ground state.
 

@@ -4,22 +4,28 @@ build-backend = "scikit_build_core.build"
 
 
 [project]
-name = "eigensolverapi"
+name = "eigenbridge"
 version = "0.0.0"
-description="Python bindings for the eigensolverapi module"
+description = "Mixed classical and quantum eigensolver API for Python and C++"
 readme = "README.md"
-authors = [
-  { name = "Jonathan Waldrop", email = "jwaldrop@ameslab.gov" },
-]
+authors = [{ name = "Jonathan Waldrop", email = "jwaldrop@ameslab.gov" }]
 requires-python = ">=3.9"
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
-  "Private :: Do Not Upload",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "qiskit",
+    "qiskit-algorithms",
+    "qiskit-aer",
+    "qiskit-ibm-runtime",
+    "numpy",
+    "pybind11",
 ]

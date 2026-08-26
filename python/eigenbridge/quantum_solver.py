@@ -6,7 +6,10 @@ from qiskit_algorithms import VQD
 from qiskit_algorithms.algorithm_job import AlgorithmJob
 from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_algorithms.optimizers import COBYLA, SLSQP
-from qiskit_algorithms.state_fidelities import BaseStateFidelity, StateFidelityResult
+from qiskit_algorithms.state_fidelities import (
+    BaseStateFidelity,
+    StateFidelityResult,
+)
 from qiskit.primitives import StatevectorEstimator
 
 
@@ -15,7 +18,15 @@ class _ExactStatevectorFidelity(BaseStateFidelity):
     def create_fidelity_circuit(self, circuit_1, circuit_2):
         return circuit_1.copy()
 
-    def _run(self, circuits_1, circuits_2, values_1=None, values_2=None, *, shots=None):
+    def _run(
+        self,
+        circuits_1,
+        circuits_2,
+        values_1=None,
+        values_2=None,
+        *,
+        shots=None,
+    ):
         if isinstance(circuits_1, QuantumCircuit):
             circuits_1 = [circuits_1]
         if isinstance(circuits_2, QuantumCircuit):
@@ -33,8 +44,12 @@ class _ExactStatevectorFidelity(BaseStateFidelity):
             for circuit_1, circuit_2, val_1, val_2 in zip(
                 circuits_1, circuits_2, values_1, values_2
             ):
-                bound_1 = circuit_1.assign_parameters(val_1) if val_1 else circuit_1
-                bound_2 = circuit_2.assign_parameters(val_2) if val_2 else circuit_2
+                bound_1 = (
+                    circuit_1.assign_parameters(val_1) if val_1 else circuit_1
+                )
+                bound_2 = (
+                    circuit_2.assign_parameters(val_2) if val_2 else circuit_2
+                )
                 overlap = Statevector(bound_1).inner(Statevector(bound_2))
                 fidelities.append(float(np.abs(overlap) ** 2))
             return StateFidelityResult(
@@ -48,7 +63,7 @@ class _ExactStatevectorFidelity(BaseStateFidelity):
 
 
 def _statevector_to_real_eigenvector(circuit, parameters, n):
-    # Turn the VQD circuit into a real unit vector of length n, and dropping extra padding.
+    # Turn the VQD circuit into a real unit vector of length n.
     bound = circuit.assign_parameters(parameters)
     vec = np.asarray(Statevector(bound).data[:n], dtype=complex)
     idx = int(np.argmax(np.abs(vec)))
@@ -82,7 +97,9 @@ def _make_estimator(use_noise):
     if not use_noise:
         return StatevectorEstimator(), None
     try:
-        from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+        from qiskit.transpiler.preset_passmanagers import (
+            generate_preset_pass_manager,
+        )
         from qiskit_aer import AerSimulator
         from qiskit_aer.noise import NoiseModel
         from qiskit_aer.primitives import EstimatorV2 as AerEstimatorV2
@@ -129,7 +146,7 @@ def _energy_diff_uncertainty(circuit, parameters, observable, noisy_estimator):
     return abs(noisy_energy - exact_energy)
 
 
-def solve_vqd(flat_matrix, n, k=None):
+def run_vqd_eigensolver(flat_matrix, n, k=None):
     """
     Takes a flat matrix of size n*n, and returns the lowest k eigenvalues
     and matching eigenvectors using VQD.
@@ -148,7 +165,9 @@ def solve_vqd(flat_matrix, n, k=None):
     fidelity = _ExactStatevectorFidelity()
 
     # Overlap weights on the scale of the original matrix, not the padding.
-    beta = 10.0 * max(1.0, float(np.max(np.abs(np.array(flat_matrix, dtype=float)))))
+    beta = 10.0 * max(
+        1.0, float(np.max(np.abs(np.array(flat_matrix, dtype=float))))
+    )
     betas = np.full(k, beta)
     rng = np.random.default_rng(0)
     if k == 1:
@@ -156,7 +175,9 @@ def solve_vqd(flat_matrix, n, k=None):
     else:
         initial_points = [np.zeros(ansatz.num_parameters)]
         for _ in range(k - 1):
-            initial_points.append(rng.uniform(-np.pi, np.pi, ansatz.num_parameters))
+            initial_points.append(
+                rng.uniform(-np.pi, np.pi, ansatz.num_parameters)
+            )
 
     vqd = VQD(estimator, fidelity, ansatz, optimizer, k=k, betas=betas)
     vqd.initial_point = initial_points
@@ -169,11 +190,13 @@ def solve_vqd(flat_matrix, n, k=None):
         eigenvectors[:, i] = _statevector_to_real_eigenvector(
             result.optimal_circuits[i], result.optimal_points[i], n
         )
+    uq_values = [0.0] * len(eigenvalues)
+    uq_vectors = [0.0] * (n * n)
 
-    return eigenvalues, eigenvectors.ravel().tolist()
+    return eigenvalues, eigenvectors.ravel().tolist(), uq_values, uq_vectors
 
 
-def solve_qaoa(flat_matrix, n, use_noise=False, reps=3):
+def run_qaoa_eigensolver(flat_matrix, n, use_noise=False, reps=3):
     """
     Takes a flat matrix of size n*n, and returns the ground eigenvalue,
     and matching eigenvector using QAOA.
@@ -202,10 +225,7 @@ def solve_qaoa(flat_matrix, n, use_noise=False, reps=3):
     uq_vectors = [0.0] * (n * n)
     if use_noise:
         uq_values[0] = _energy_diff_uncertainty(
-            result.optimal_circuit,
-            result.optimal_point,
-            observable,
-            estimator
+            result.optimal_circuit, result.optimal_point, observable, estimator
         )
 
     return eigenvalues, eigenvectors.ravel().tolist(), uq_values, uq_vectors
@@ -215,16 +235,18 @@ def solve_qaoa(flat_matrix, n, use_noise=False, reps=3):
 if __name__ == "__main__":
     # The same 3x3 matrix from the C++ test file
     test_matrix = [3.0, 5.0, 2.0, 5.0, 1.0, 3.0, 2.0, 3.0, 2.0]
-    values, vectors = solve_vqd(test_matrix, 3)
+    values, vectors = run_vqd_eigensolver(test_matrix, 3)
     print(f"VQD Eigenvalues: {values}")
     print(f"VQD Eigenvectors: {vectors}")
-    qaoa_values, qaoa_vectors, qaoa_uq_v, qaoa_uq_vec = solve_qaoa(test_matrix, 3)
+    qaoa_values, qaoa_vectors, qaoa_uq_v, qaoa_uq_vec = run_qaoa_eigensolver(
+        test_matrix, 3
+    )
     print(f"QAOA Eigenvalue: {qaoa_values}")
     print(f"QAOA Eigenvector: {qaoa_vectors}")
     print(f"QAOA uq_values: {qaoa_uq_v}")
     try:
-        qaoa_noisy_values, qaoa_noisy_vectors, noisy_uq_v, noisy_uq_vec = solve_qaoa(
-            test_matrix, 3, use_noise=True
+        qaoa_noisy_values, qaoa_noisy_vectors, noisy_uq_v, noisy_uq_vec = (
+            run_qaoa_eigensolver(test_matrix, 3, use_noise=True)
         )
         print(f"QAOA Eigenvalue (noise): {qaoa_noisy_values}")
         print(f"QAOA Eigenvector (noise): {qaoa_noisy_vectors}")
