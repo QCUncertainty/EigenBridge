@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
-# Set Project and Version
 project(
     eigenbridge
-    VERSION "0.0.0"
+    VERSION "${SKBUILD_PROJECT_VERSION}"
     LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 17)

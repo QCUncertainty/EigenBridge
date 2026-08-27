@@ -5,7 +5,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "eigenbridge"
-version = "0.0.0"
+version = "0.1.0"
 description = "Mixed classical and quantum eigensolver API for Python and C++"
 readme = "README.md"
 authors = [{ name = "Jonathan Waldrop", email = "jwaldrop@ameslab.gov" }]
@@ -29,3 +29,6 @@ dependencies = [
     "qiskit-aer",
     "qiskit-ibm-runtime",
 ]
+
+[project.optional-dependencies]
+dev = ["pre-commit"]
