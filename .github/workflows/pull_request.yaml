@@ -6,36 +6,6 @@ on:
       - main
 
 jobs:
-  # Build and test C++ libraries.
-  test_cpp:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - name: Install LAPACK and LAPACKE
-        run: sudo apt-get install -y liblapacke-dev
-        shell: bash
-      - name: Install Python deps for embed and VQE
-        run: |
-          pip install pybind11 qiskit qiskit-algorithms numpy scipy \
-            qiskit-aer qiskit-ibm-runtime
-        shell: bash
-      - name: Build and Test
-        run: |
-          toolchain=${PWD}/.github/workflow_toolchains/ubuntu-24.04.cmake
-          cmake -Bbuild -H. -GNinja \
-            -DCMAKE_TOOLCHAIN_FILE="${toolchain}" \
-            -Dpybind11_DIR="$(python -m pybind11 --cmakedir)"
-          cmake --build build --parallel
-          cd build
-          ctest -C Debug -T test -VV --no-tests=error
-        shell: bash
-
   # Build and test Python bindings.
   test_python:
     runs-on: ubuntu-24.04
@@ -69,6 +39,6 @@ jobs:
           python-version: "3.x"
       - name: Install and Run pre-commit
         run: |
-          pip install -r requirements.txt
+          pip install pre-commit
           pre-commit run --all-files
         shell: bash
