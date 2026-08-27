@@ -1,7 +1,8 @@
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit.circuit.library import EfficientSU2, QAOAAnsatz
+from qiskit.primitives import StatevectorEstimator
+from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit_algorithms import VQD
 from qiskit_algorithms.algorithm_job import AlgorithmJob
 from qiskit_algorithms.minimum_eigensolvers import VQE
@@ -10,11 +11,9 @@ from qiskit_algorithms.state_fidelities import (
     BaseStateFidelity,
     StateFidelityResult,
 )
-from qiskit.primitives import StatevectorEstimator
 
 
 class _ExactStatevectorFidelity(BaseStateFidelity):
-
     def create_fidelity_circuit(self, circuit_1, circuit_2):
         return circuit_1.copy()
 
@@ -111,7 +110,7 @@ def _make_estimator(use_noise):
         ) from exc
 
     fake_backend = FakeManilaV2()
-    noise_model = NoiseModel.from_backend(fake_backend)
+    noise_model = NoiseModel.from_backend(fake_backend, warnings=False)
     aer_simulator = AerSimulator(noise_model=noise_model)
     pass_manager = generate_preset_pass_manager(
         optimization_level=1, backend=aer_simulator
@@ -135,7 +134,6 @@ def _expect_energy(estimator, circuit, observable, parameters):
 
 
 def _energy_diff_uncertainty(circuit, parameters, observable, noisy_estimator):
-
     exact_energy = _expect_energy(
         StatevectorEstimator(), circuit, observable, parameters
     )
@@ -245,9 +243,12 @@ if __name__ == "__main__":
     print(f"QAOA Eigenvector: {qaoa_vectors}")
     print(f"QAOA uq_values: {qaoa_uq_v}")
     try:
-        qaoa_noisy_values, qaoa_noisy_vectors, noisy_uq_v, noisy_uq_vec = (
-            run_qaoa_eigensolver(test_matrix, 3, use_noise=True)
-        )
+        (
+            qaoa_noisy_values,
+            qaoa_noisy_vectors,
+            noisy_uq_v,
+            noisy_uq_vec,
+        ) = run_qaoa_eigensolver(test_matrix, 3, use_noise=True)
         print(f"QAOA Eigenvalue (noise): {qaoa_noisy_values}")
         print(f"QAOA Eigenvector (noise): {qaoa_noisy_vectors}")
         print(f"QAOA uq_values (noise): {noisy_uq_v}")

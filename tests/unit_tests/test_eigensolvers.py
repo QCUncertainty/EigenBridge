@@ -1,5 +1,6 @@
-import eigenbridge
 import unittest
+
+import eigenbridge
 
 
 class TestEigensolvers(unittest.TestCase):
@@ -42,10 +43,6 @@ class TestEigensolvers(unittest.TestCase):
             self.assertEqual(i, uq_val)
         for i in uq_vectors:
             self.assertEqual(i, uq_vec)
-
-    def test_lapack_eigensolver(self):
-        results = eigenbridge.run_lapack_eigensolver(self.flat_matrix)
-        self._check_results(results)
 
     def test_vqd_eigensolver(self):
         results = eigenbridge.run_vqd_eigensolver(self.flat_matrix, n=3)

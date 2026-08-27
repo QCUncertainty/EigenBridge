@@ -1,14 +1,16 @@
 [build-system]
-requires = ["scikit-build-core>=0.11", "pybind11>=3.0"]
-build-backend = "scikit_build_core.build"
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
 
 
 [project]
 name = "eigenbridge"
-version = "0.1.0"
-description = "Mixed classical and quantum eigensolver API for Python and C++"
+authors = [
+    { name = "Jonathan Waldrop", email = "jwaldrop@ameslab.gov" },
+    { name = "Mahir Anand", email = "mahiranand@outlook.com" },
+]
+description = "Quantum eigensolver implementation using Qiskit"
 readme = "README.md"
-authors = [{ name = "Jonathan Waldrop", email = "jwaldrop@ameslab.gov" }]
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -19,8 +21,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Private :: Do Not Upload",
 ]
+dynamic = ["version"]
 dependencies = [
     "numpy",
     "pybind11",
@@ -31,4 +33,17 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit"]
+dev = ["pre-commit", "pytest"]
+
+[tool.setuptools.packages.find]
+where = ["python"]
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -p no:warnings" # Silencing warnings b/c Qiskit
+testpaths = [
+    "tests",
+]

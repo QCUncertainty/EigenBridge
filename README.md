@@ -2,22 +2,6 @@
 
 There are two quantum solvers. VQD can return several eigenvalues; QAOA returns only the ground state.
 
-**Setup**
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install qiskit qiskit-algorithms numpy scipy pybind11
-brew install lapack   # macOS only
-
-cd build
-cmake -DLAPACKE_DIR=/opt/homebrew/opt/lapack -DBUILD_TESTING=ON ..
-make
-PYTHONPATH="$VIRTUAL_ENV/lib/python3.*/site-packages" ./unit_test_eigensolverapi
-```
-**Noisy QAOA**
-```bash
-pip install qiskit-aer qiskit-ibm-runtime
-```
-
 VQD -> `run_vqd_eigensolver(matrix, k)` -> `solve_vqd` -> lowest `k` eigenvalues (`k` defaults to all)
 QAOA -> `run_qaoa_eigensolver(matrix, use_noise=false)` -> `solve_qaoa` -> ground state only
 
