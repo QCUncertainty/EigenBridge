@@ -23,6 +23,11 @@ toolchain.cmake
 # Users often install under the root directory
 install/
 
+# Per-project virtualenvs
+*venv*/
+.conda*/
+.python-version
+
 # These are extensions commonly used to denote temporary files
 *.tmp
 *.autosave

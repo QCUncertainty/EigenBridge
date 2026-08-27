@@ -22,10 +22,10 @@ classifiers = [
     "Private :: Do Not Upload",
 ]
 dependencies = [
+    "numpy",
+    "pybind11",
     "qiskit",
     "qiskit-algorithms",
     "qiskit-aer",
     "qiskit-ibm-runtime",
-    "numpy",
-    "pybind11",
 ]
