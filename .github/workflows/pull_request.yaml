@@ -27,6 +27,12 @@ jobs:
           python -m unittest
         shell: bash
 
+  test_pypi_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build PyPI Distribution
+        uses: NWChemEx/.github/.github/actions/build_pypi_dist@master
+
   # Run pre-commit hooks
   pre-commit:
     runs-on: ubuntu-latest
