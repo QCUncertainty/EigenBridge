@@ -31,6 +31,8 @@ pybind11_add_module(${PROJECT_NAME}_core
     ${PYTHON_FILES}
 )
 target_link_libraries(${PROJECT_NAME}_core PUBLIC LAPACK::LAPACK lapacke)
+target_link_directories(${PROJECT_NAME}_core PUBLIC ${LAPACKE_LIBRARY_DIRS})
+target_include_directories(${PROJECT_NAME}_core PRIVATE ${LAPACKE_INCLUDE_DIRS})
 
 # Install the Python module
 install(TARGETS ${PROJECT_NAME}_core

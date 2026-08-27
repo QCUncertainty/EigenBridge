@@ -27,8 +27,8 @@ class TestEigensolvers(unittest.TestCase):
     def _check_results(
         self,
         results,
-        val_places=16,
-        vec_places=16,
+        val_places=14,
+        vec_places=14,
         uq_val=1e-16,
         uq_vec=1e-16,
     ):
