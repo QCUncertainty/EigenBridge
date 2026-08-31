@@ -11,8 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: QHARM
 
-from .quantum_solvers import (  # noqa: F401
-    run_qaoa_eigensolver,
-    run_vqd_eigensolver,
-)
+  paths-ignore:
+    - .github/
+    - LICENSE
+    - build/
+    - venv/
+
+  comment: never
