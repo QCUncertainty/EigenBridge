@@ -8,6 +8,7 @@ on:
 jobs:
   tag-commit:
     uses: NWChemEx/.github/.github/workflows/tag.yaml@master
+    secrets: inherit
 
   deploy_to_pypi:
     needs: tag-commit
