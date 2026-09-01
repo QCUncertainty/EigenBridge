@@ -18,7 +18,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "eigenbridge"
+name = "qharm-eigenbridge"
 authors = [
     { name = "Jonathan Waldrop", email = "jwaldrop@ameslab.gov" },
     { name = "Mahir Anand", email = "mahiranand@outlook.com" },
