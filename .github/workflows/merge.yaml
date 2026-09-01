@@ -3,7 +3,7 @@ name: Merge Workflow
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   tag-commit:
