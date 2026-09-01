@@ -1,2 +1,0 @@
-pre-commit
-pybind11>=3.0

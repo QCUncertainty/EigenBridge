@@ -1,22 +1,22 @@
-# EigensolverAPI (name in progress)
+<!--
+  ~ Copyright 2026 QHARM
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+-->
+
+# EigenBridge
 
 There are two quantum solvers. VQD can return several eigenvalues; QAOA returns only the ground state.
-
-**Setup**
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install qiskit qiskit-algorithms numpy scipy pybind11
-brew install lapack   # macOS only
-
-cd build
-cmake -DLAPACKE_DIR=/opt/homebrew/opt/lapack -DBUILD_TESTING=ON ..
-make
-PYTHONPATH="$VIRTUAL_ENV/lib/python3.*/site-packages" ./unit_test_eigensolverapi
-```
-**Noisy QAOA**
-```bash
-pip install qiskit-aer qiskit-ibm-runtime
-```
 
 VQD -> `run_vqd_eigensolver(matrix, k)` -> `solve_vqd` -> lowest `k` eigenvalues (`k` defaults to all)
 QAOA -> `run_qaoa_eigensolver(matrix, use_noise=false)` -> `solve_qaoa` -> ground state only
